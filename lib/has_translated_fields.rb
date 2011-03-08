@@ -100,9 +100,11 @@ module HasTranslatedFields
           possible_locales = [locale, ::I18n.default_locale, ::I18n.available_locales].flatten.uniq
           possible_locales.each do |possible_locale|
             next unless translation = super(possible_locale, key, scope, options)
-            translation.singleton_class.send(:include, LocalizedString)
-            translation.locale = possible_locale
-            translation.fallback = (possible_locale != locale)
+            unless translation.frozen?
+              translation.singleton_class.send(:include, LocalizedString)
+              translation.locale = possible_locale
+              translation.fallback = (possible_locale != locale)
+            end
             return translation
           end
           nil
